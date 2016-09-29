@@ -1,0 +1,85 @@
+def get_email
+  user_prompt
+  gets.chomp
+end
+
+def user_prompt
+  puts "Input your email:\n"
+  print "> "
+end
+
+def handle_choice(choice, user)
+  case choice
+    when '0'
+      url = get_long_url
+      create_shortened_url(user, url)
+    when '1'
+      url = get_short_url
+      visit_shortened_url(user, url)
+    when '2'
+      return
+    else
+      choice = get_choice
+  end
+end
+
+def create_shortened_url(user, url)
+  url = ShortenedUrl.create_for_user_and_long_url!(user, url)
+  puts "Short url is: #{url.short_url}"
+end
+
+def visit_shortened_url(user, url)
+  url = ShortenedUrl.find_by({short_url: url})
+  Visit.record_visit!(user, url)
+end
+
+def get_long_url
+  prompt_long_url
+  gets.chomp
+end
+
+def get_short_url
+  prompt_short_url
+  gets.chomp
+end
+
+def prompt_long_url
+  puts "Enter a long url"
+  print "> "
+end
+
+def prompt_short_url
+  puts "Enter a short url"
+  print "> "
+end
+
+def get_choice
+  puts "What do you want to do?\n\
+  0. Create shortened URL\n\
+  1. Visit shortened URL\n\
+  2. Exit"
+  print "> "
+  gets.chomp
+end
+
+def get_user
+  user = nil
+  loop do
+    email = get_email
+    user = User.find_by("email = ?", email)
+
+    if user || email.downcase == "exit"
+      break
+    end
+  end
+
+  user
+end
+
+
+## Program ##
+user = get_user
+if user
+  choice = get_choice
+  handle_choice(choice, user)
+end
